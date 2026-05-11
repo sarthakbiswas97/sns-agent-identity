@@ -1,5 +1,6 @@
-import { Connection, PublicKey } from "@solana/web3.js";
-import { Program, AnchorProvider } from "@coral-xyz/anchor";
+import { Connection, PublicKey, SystemProgram } from "@solana/web3.js";
+import { Program, AnchorProvider, BN } from "@coral-xyz/anchor";
+import type { AnchorWallet } from "@solana/wallet-adapter-react";
 import idl from "./idl.json";
 
 export const PROGRAM_ID = new PublicKey(
@@ -97,6 +98,70 @@ export async function fetchAgentProfile(
     return profile as AgentProfile;
   } catch {
     return null;
+  }
+}
+
+export function getWriteProgram(wallet: AnchorWallet): Program {
+  const connection = new Connection(RPC_URL, "confirmed");
+  const provider = new AnchorProvider(connection, wallet, {
+    commitment: "confirmed",
+  });
+  return new Program(idl as any, provider);
+}
+
+export function getMockDomainPda(domainName: string): PublicKey {
+  const [pda] = PublicKey.findProgramAddressSync(
+    [Buffer.from("mock-domain"), Buffer.from(domainName)],
+    PROGRAM_ID
+  );
+  return pda;
+}
+
+export async function registerAgent(
+  wallet: AnchorWallet,
+  domainName: string,
+  description: string
+): Promise<string> {
+  const program = getWriteProgram(wallet);
+  const authority = wallet.publicKey;
+  const agentProfilePda = getAgentPda(domainName);
+  const mockDomainPda = getMockDomainPda(domainName);
+
+  // Step 1: Create mock domain
+  try {
+    await (program.methods as any)
+      .createMockDomain(domainName)
+      .accounts({
+        mockDomain: mockDomainPda,
+        authority,
+        systemProgram: SystemProgram.programId,
+      })
+      .rpc();
+  } catch (e: any) {
+    if (!e.message?.includes("already in use")) throw e;
+  }
+
+  // Step 2: Register agent
+  const sig = await (program.methods as any)
+    .registerAgent(domainName, description)
+    .accounts({
+      agentProfile: agentProfilePda,
+      domainAccount: mockDomainPda,
+      authority,
+      systemProgram: SystemProgram.programId,
+    })
+    .rpc();
+
+  return sig;
+}
+
+export async function fetchAllAgents(): Promise<AgentProfile[]> {
+  try {
+    const program = getReadonlyProgram();
+    const accounts = await (program.account as any).agentProfile.all();
+    return accounts.map((a: any) => a.account as AgentProfile);
+  } catch {
+    return [];
   }
 }
 
