@@ -7,6 +7,7 @@ import Header from "../../header";
 import {
   fetchAgentProfile,
   fetchTradeRecords,
+  getAgentPda,
   type AgentProfile,
   type TradeRecord,
 } from "../../../lib/program";
@@ -141,9 +142,32 @@ export default function AgentProfilePage() {
             <span className="text-[var(--accent)]">.sol</span>
           </h2>
           <p className="text-[var(--muted)]">{profile.description}</p>
-          <p className="text-xs text-[var(--muted)] font-mono mt-2">
-            Authority: {profile.authority.toBase58()}
-          </p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
+            <p className="text-xs text-[var(--muted)] font-mono">
+              Authority: {profile.authority.toBase58()}
+            </p>
+            <a
+              href={`https://explorer.solana.com/address/${profile.authority.toBase58()}?cluster=devnet`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-[var(--accent)] hover:underline"
+            >
+              View on Explorer
+            </a>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <p className="text-xs text-[var(--muted)] font-mono">
+              Agent PDA: {getAgentPda(profile.domainName).toBase58()}
+            </p>
+            <a
+              href={`https://explorer.solana.com/address/${getAgentPda(profile.domainName).toBase58()}?cluster=devnet`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-[var(--accent)] hover:underline"
+            >
+              View on Explorer
+            </a>
+          </div>
           <p className="text-xs text-[var(--muted)] font-mono">
             Registered:{" "}
             {formatTimestamp(profile.createdAt.toNumber())}
