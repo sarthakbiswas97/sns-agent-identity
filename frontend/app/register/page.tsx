@@ -69,12 +69,18 @@ export default function RegisterPage() {
         </p>
 
         {!connected ? (
-          <div className="p-6 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)] text-center">
-            <p className="text-[var(--muted)] mb-2">
-              Connect your wallet to register an agent.
+          <div className="p-8 rounded-lg bg-[var(--card-bg)] border border-dashed border-[var(--accent-dim)] text-center">
+            <div className="mb-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-[var(--accent)]"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M22 10H2"/><path d="M6 14h.01"/></svg>
+            </div>
+            <p className="text-[var(--foreground)] font-semibold mb-1">
+              Wallet not connected
             </p>
-            <p className="text-xs text-[var(--muted)]">
-              Use the wallet button in the header.
+            <p className="text-sm text-[var(--muted)] mb-4">
+              Connect your Solana wallet to register an agent identity on-chain.
+            </p>
+            <p className="text-xs text-[var(--muted)] px-4 py-2 rounded-md bg-[var(--background)] inline-block">
+              Click the wallet button in the top-right corner to connect.
             </p>
           </div>
         ) : (

@@ -36,18 +36,38 @@ function Stat({
 function ReputationBar({ score }: { score: number }) {
   const pct = score / 100;
   let barColor = "bg-red-500";
-  if (pct >= 70) barColor = "bg-emerald-500";
-  else if (pct >= 40) barColor = "bg-yellow-500";
+  let label = "Low";
+  let labelColor = "text-red-400";
+  if (pct >= 70) {
+    barColor = "bg-emerald-500";
+    label = "High";
+    labelColor = "text-emerald-400";
+  } else if (pct >= 40) {
+    barColor = "bg-yellow-500";
+    label = "Medium";
+    labelColor = "text-yellow-400";
+  }
 
   return (
-    <div>
-      <div className="flex justify-between text-sm mb-1">
-        <span className="text-[var(--muted)]">Reputation</span>
-        <span className="font-mono font-bold">{pct.toFixed(0)}%</span>
+    <div className="p-4 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)]">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm font-semibold text-[var(--muted)] uppercase tracking-wide">
+          Reputation Score
+        </span>
+        <div className="flex items-center gap-2">
+          <span className={`text-2xl font-mono font-bold ${labelColor}`}>
+            {pct.toFixed(0)}%
+          </span>
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${labelColor} ${
+            pct >= 70 ? "bg-emerald-400/10" : pct >= 40 ? "bg-yellow-400/10" : "bg-red-400/10"
+          }`}>
+            {label}
+          </span>
+        </div>
       </div>
-      <div className="w-full h-3 bg-[var(--card-border)] rounded-full overflow-hidden">
+      <div className="w-full h-2.5 bg-[var(--card-border)] rounded-full overflow-hidden">
         <div
-          className={`h-full rounded-full ${barColor} transition-all duration-500`}
+          className={`h-full rounded-full ${barColor} transition-all duration-700`}
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -102,9 +122,25 @@ export default function AgentProfilePage() {
 
   if (loading) {
     return (
-      <main className="flex-1 flex items-center justify-center">
-        <div className="text-[var(--muted)] font-mono animate-pulse">
-          Loading on-chain data...
+      <main className="flex-1">
+        <Header />
+        <div className="max-w-5xl mx-auto px-6 py-16">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 w-64 bg-[var(--card-border)] rounded" />
+            <div className="h-4 w-96 bg-[var(--card-border)] rounded" />
+            <div className="h-3 w-full bg-[var(--card-border)] rounded-full" />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                <div key={i} className="p-4 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)]">
+                  <div className="h-3 w-16 bg-[var(--card-border)] rounded mb-2" />
+                  <div className="h-6 w-20 bg-[var(--card-border)] rounded" />
+                </div>
+              ))}
+            </div>
+          </div>
+          <p className="text-[var(--muted)] font-mono text-xs text-center pt-8">
+            Fetching agent profile from Solana devnet...
+          </p>
         </div>
       </main>
     );
@@ -112,14 +148,28 @@ export default function AgentProfilePage() {
 
   if (error || !profile) {
     return (
-      <main className="flex-1 flex flex-col items-center justify-center gap-4">
-        <div className="text-red-400 font-mono">{error}</div>
-        <Link
-          href="/"
-          className="text-[var(--accent)] hover:underline text-sm"
-        >
-          Back to dashboard
-        </Link>
+      <main className="flex-1">
+        <Header />
+        <div className="max-w-lg mx-auto px-6 py-16 text-center">
+          <div className="p-8 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)]">
+            <div className="text-red-400 font-mono text-lg mb-2">Agent not found</div>
+            <p className="text-[var(--muted)] text-sm mb-6">{error}</p>
+            <div className="flex justify-center gap-3">
+              <Link
+                href="/"
+                className="px-4 py-2 rounded-lg border border-[var(--card-border)] text-[var(--muted)] text-sm hover:text-[var(--foreground)] hover:border-[var(--accent-dim)] transition-colors"
+              >
+                Back to dashboard
+              </Link>
+              <Link
+                href="/register"
+                className="px-4 py-2 rounded-lg bg-[var(--accent)] text-black text-sm font-semibold hover:bg-[var(--accent-dim)] transition-colors"
+              >
+                Register this agent
+              </Link>
+            </div>
+          </div>
+        </div>
       </main>
     );
   }
@@ -142,36 +192,31 @@ export default function AgentProfilePage() {
             <span className="text-[var(--accent)]">.sol</span>
           </h2>
           <p className="text-[var(--muted)]">{profile.description}</p>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
-            <p className="text-xs text-[var(--muted)] font-mono">
-              Authority: {profile.authority.toBase58()}
-            </p>
+          <div className="flex flex-wrap items-center gap-3 mt-3">
             <a
               href={`https://explorer.solana.com/address/${profile.authority.toBase58()}?cluster=devnet`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-[var(--accent)] hover:underline"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[var(--card-bg)] border border-[var(--card-border)] text-xs font-mono text-[var(--muted)] hover:border-[var(--accent-dim)] hover:text-[var(--accent)] transition-colors"
             >
-              View on Explorer
+              <span className="text-[var(--accent)]">Authority</span>
+              <span>{profile.authority.toBase58().slice(0, 8)}...</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             </a>
-          </div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <p className="text-xs text-[var(--muted)] font-mono">
-              Agent PDA: {getAgentPda(profile.domainName).toBase58()}
-            </p>
             <a
               href={`https://explorer.solana.com/address/${getAgentPda(profile.domainName).toBase58()}?cluster=devnet`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-[var(--accent)] hover:underline"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[var(--card-bg)] border border-[var(--card-border)] text-xs font-mono text-[var(--muted)] hover:border-[var(--accent-dim)] hover:text-[var(--accent)] transition-colors"
             >
-              View on Explorer
+              <span className="text-[var(--accent)]">Agent PDA</span>
+              <span>{getAgentPda(profile.domainName).toBase58().slice(0, 8)}...</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             </a>
+            <span className="text-xs text-[var(--muted)] font-mono">
+              Registered: {formatTimestamp(profile.createdAt.toNumber())}
+            </span>
           </div>
-          <p className="text-xs text-[var(--muted)] font-mono">
-            Registered:{" "}
-            {formatTimestamp(profile.createdAt.toNumber())}
-          </p>
         </div>
 
         {/* Reputation */}
@@ -243,12 +288,15 @@ export default function AgentProfilePage() {
             Trade History
           </h3>
           {trades.length === 0 ? (
-            <p className="text-[var(--muted)] text-sm">No trades recorded.</p>
+            <div className="p-8 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)] text-center">
+              <p className="text-[var(--muted)] text-sm mb-1">No trades recorded yet.</p>
+              <p className="text-[var(--muted)] text-xs">Trade records will appear here once the agent executes trades on-chain.</p>
+            </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-lg border border-[var(--card-border)]">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-[var(--muted)] text-xs uppercase border-b border-[var(--card-border)]">
+                  <tr className="text-[var(--muted)] text-xs uppercase border-b border-[var(--card-border)] bg-[var(--card-bg)]">
                     <th className="text-left py-2 px-3">#</th>
                     <th className="text-left py-2 px-3">Direction</th>
                     <th className="text-right py-2 px-3">Entry</th>

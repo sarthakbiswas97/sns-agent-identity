@@ -9,16 +9,20 @@ import { fetchAllAgents, type AgentProfile } from "../lib/program";
 function ReputationBadge({ score }: { score: number }) {
   const pct = score / 100;
   let color = "text-red-400";
+  let bg = "bg-red-400/10";
   let label = "Low";
   if (pct >= 70) {
     color = "text-emerald-400";
+    bg = "bg-emerald-400/10";
     label = "High";
   } else if (pct >= 40) {
     color = "text-yellow-400";
+    bg = "bg-yellow-400/10";
     label = "Medium";
   }
   return (
-    <span className={`font-mono font-bold ${color}`}>
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-bold ${color} ${bg}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${pct >= 70 ? "bg-emerald-400" : pct >= 40 ? "bg-yellow-400" : "bg-red-400"}`} />
       {pct.toFixed(0)}% {label}
     </span>
   );
@@ -53,9 +57,12 @@ export default function Home() {
           On-chain identity for{" "}
           <span className="text-[var(--accent)]">AI agents</span>
         </h2>
-        <p className="text-[var(--muted)] text-lg max-w-2xl mx-auto mb-10">
-          Every AI trading agent gets a .sol domain with verifiable reputation,
-          track record, and risk profile stored on Solana.
+        <p className="text-[var(--muted)] text-lg max-w-2xl mx-auto mb-2">
+          Verifiable identity and on-chain reputation for AI trading agents on Solana.
+        </p>
+        <p className="text-[var(--muted)] text-sm max-w-xl mx-auto mb-10">
+          Every agent gets a .sol domain with track record, risk profile, and
+          reputation score -- fully on-chain and verifiable by anyone.
         </p>
 
         <form
@@ -87,8 +94,27 @@ export default function Home() {
         </h3>
 
         {loading ? (
-          <div className="text-[var(--muted)] font-mono text-sm animate-pulse py-8 text-center">
-            Fetching agents from Solana...
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="p-5 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)] animate-pulse"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="h-5 w-40 bg-[var(--card-border)] rounded" />
+                  <div className="h-6 w-24 bg-[var(--card-border)] rounded-full" />
+                </div>
+                <div className="h-4 w-3/4 bg-[var(--card-border)] rounded mb-3" />
+                <div className="flex gap-6">
+                  <div className="h-3 w-20 bg-[var(--card-border)] rounded" />
+                  <div className="h-3 w-24 bg-[var(--card-border)] rounded" />
+                  <div className="h-3 w-28 bg-[var(--card-border)] rounded" />
+                </div>
+              </div>
+            ))}
+            <p className="text-[var(--muted)] font-mono text-xs text-center pt-2">
+              Fetching agents from Solana devnet...
+            </p>
           </div>
         ) : agents.length === 0 ? (
           <div className="text-[var(--muted)] text-sm py-8 text-center">
@@ -105,18 +131,30 @@ export default function Home() {
                 totalTrades > 0
                   ? ((agent.stats.wins / totalTrades) * 100).toFixed(0)
                   : "0";
+              const repPct = agent.reputationScore / 100;
+              const borderClass =
+                repPct >= 70
+                  ? "border-emerald-800/50 hover:border-emerald-600/60"
+                  : repPct >= 40
+                    ? "border-[var(--card-border)] hover:border-yellow-700/50"
+                    : "border-[var(--card-border)] hover:border-[var(--accent-dim)]";
               return (
                 <Link
                   key={agent.domainName}
                   href={`/agent/${agent.domainName}`}
-                  className="block p-5 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--accent-dim)] transition-colors"
+                  className={`group block p-5 rounded-lg bg-[var(--card-bg)] border ${borderClass} transition-all duration-200 hover:bg-[#151d2e]`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono font-bold text-lg">
+                    <span className="font-mono font-bold text-lg group-hover:text-[var(--accent)] transition-colors">
                       {agent.domainName}
                       <span className="text-[var(--accent)]">.sol</span>
                     </span>
-                    <ReputationBadge score={agent.reputationScore} />
+                    <div className="flex items-center gap-3">
+                      <ReputationBadge score={agent.reputationScore} />
+                      <span className="text-[var(--muted)] opacity-0 group-hover:opacity-100 transition-opacity text-sm">
+                        &rarr;
+                      </span>
+                    </div>
                   </div>
                   <p className="text-sm text-[var(--muted)] mb-3">
                     {agent.description}
