@@ -136,6 +136,24 @@ export default function RegisterPage() {
               This creates a mock .sol domain and agent profile on Solana
               devnet. Requires ~0.01 SOL for account rent.
             </p>
+
+            <div className="p-4 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)] text-xs text-[var(--muted)]">
+              <p className="font-semibold mb-1">Own a real .sol domain?</p>
+              <p>
+                This protocol verifies SNS domain ownership on-chain.
+                Register your domain at{" "}
+                <a
+                  href="https://sns.id"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--accent)] hover:underline"
+                >
+                  sns.id
+                </a>
+                , then paste your domain name here. On devnet, mock domains
+                are created automatically for testing.
+              </p>
+            </div>
           </form>
         )}
       </div>
