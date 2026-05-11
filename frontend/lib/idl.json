@@ -1,0 +1,214 @@
+{
+  "address": "9P7BTdsx5JHE37rLNGNGSPU99SpsVsKwGB5B6Zn8KViq",
+  "metadata": {
+    "name": "sns_agent_identity",
+    "version": "0.1.0",
+    "spec": "0.1.0"
+  },
+  "instructions": [
+    {
+      "name": "create_mock_domain",
+      "discriminator": [135, 116, 10, 221, 179, 103, 15, 49],
+      "accounts": [
+        { "name": "mock_domain", "writable": true, "pda": { "seeds": [{ "kind": "const", "value": [109, 111, 99, 107, 45, 100, 111, 109, 97, 105, 110] }, { "kind": "arg", "path": "domain_name" }] } },
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "system_program", "address": "11111111111111111111111111111111" }
+      ],
+      "args": [
+        { "name": "domain_name", "type": "string" }
+      ]
+    },
+    {
+      "name": "register_agent",
+      "discriminator": [135, 157, 66, 195, 2, 113, 175, 30],
+      "accounts": [
+        { "name": "agent_profile", "writable": true, "pda": { "seeds": [{ "kind": "const", "value": [97, 103, 101, 110, 116] }, { "kind": "arg", "path": "domain_name" }] } },
+        { "name": "domain_account" },
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "system_program", "address": "11111111111111111111111111111111" }
+      ],
+      "args": [
+        { "name": "domain_name", "type": "string" },
+        { "name": "description", "type": "string" }
+      ]
+    },
+    {
+      "name": "update_risk_profile",
+      "discriminator": [125, 57, 0, 199, 218, 160, 42, 168],
+      "accounts": [
+        { "name": "agent_profile", "writable": true },
+        { "name": "authority", "signer": true }
+      ],
+      "args": [
+        { "name": "max_position_bps", "type": "u16" },
+        { "name": "max_daily_loss_bps", "type": "u16" },
+        { "name": "max_drawdown_bps", "type": "u16" },
+        { "name": "strategy", "type": "string" }
+      ]
+    },
+    {
+      "name": "record_trade",
+      "discriminator": [83, 201, 2, 171, 223, 122, 186, 127],
+      "accounts": [
+        { "name": "agent_profile", "writable": true },
+        { "name": "trade_record", "writable": true },
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "system_program", "address": "11111111111111111111111111111111" }
+      ],
+      "args": [
+        { "name": "direction", "type": "u8" },
+        { "name": "entry_price", "type": "u64" },
+        { "name": "exit_price", "type": "u64" },
+        { "name": "size_usd", "type": "u64" },
+        { "name": "confidence", "type": "u16" }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "MockDomain",
+      "discriminator": [11, 161, 188, 18, 15, 235, 185, 114]
+    },
+    {
+      "name": "AgentProfile",
+      "discriminator": [60, 227, 42, 24, 0, 87, 86, 205]
+    },
+    {
+      "name": "TradeRecord",
+      "discriminator": [150, 248, 182, 169, 229, 100, 24, 37]
+    }
+  ],
+  "types": [
+    {
+      "name": "MockDomain",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "parent", "type": "pubkey" },
+          { "name": "owner", "type": "pubkey" },
+          { "name": "class", "type": "pubkey" }
+        ]
+      }
+    },
+    {
+      "name": "AgentProfile",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "authority", "type": "pubkey" },
+          { "name": "domain_name", "type": "string" },
+          { "name": "domain_key", "type": "pubkey" },
+          { "name": "description", "type": "string" },
+          { "name": "risk_profile", "type": { "defined": { "name": "RiskProfile" } } },
+          { "name": "stats", "type": { "defined": { "name": "TradingStats" } } },
+          { "name": "reputation_score", "type": "u32" },
+          { "name": "created_at", "type": "i64" },
+          { "name": "last_active", "type": "i64" },
+          { "name": "trade_count", "type": "u32" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "TradeRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "agent", "type": "pubkey" },
+          { "name": "index", "type": "u32" },
+          { "name": "direction", "type": "u8" },
+          { "name": "entry_price", "type": "u64" },
+          { "name": "exit_price", "type": "u64" },
+          { "name": "size_usd", "type": "u64" },
+          { "name": "pnl", "type": "i64" },
+          { "name": "confidence", "type": "u16" },
+          { "name": "timestamp", "type": "i64" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "AgentRegistered",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "authority", "type": "pubkey" },
+          { "name": "domain_name", "type": "string" },
+          { "name": "domain_key", "type": "pubkey" }
+        ]
+      }
+    },
+    {
+      "name": "TradeRecorded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "agent", "type": "pubkey" },
+          { "name": "domain_name", "type": "string" },
+          { "name": "direction", "type": "u8" },
+          { "name": "pnl", "type": "i64" },
+          { "name": "new_reputation", "type": "u32" }
+        ]
+      }
+    },
+    {
+      "name": "RiskProfile",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "max_position_bps", "type": "u16" },
+          { "name": "max_daily_loss_bps", "type": "u16" },
+          { "name": "max_drawdown_bps", "type": "u16" },
+          { "name": "strategy", "type": "string" }
+        ]
+      }
+    },
+    {
+      "name": "TradingStats",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "total_trades", "type": "u32" },
+          { "name": "wins", "type": "u32" },
+          { "name": "losses", "type": "u32" },
+          { "name": "total_pnl", "type": "i64" },
+          { "name": "best_trade", "type": "i64" },
+          { "name": "worst_trade", "type": "i64" },
+          { "name": "total_volume", "type": "u64" }
+        ]
+      }
+    }
+  ],
+  "events": [
+    {
+      "name": "AgentRegistered",
+      "discriminator": [],
+      "fields": [
+        { "name": "authority", "type": "pubkey" },
+        { "name": "domain_name", "type": "string" },
+        { "name": "domain_key", "type": "pubkey" }
+      ]
+    },
+    {
+      "name": "TradeRecorded",
+      "discriminator": [],
+      "fields": [
+        { "name": "agent", "type": "pubkey" },
+        { "name": "domain_name", "type": "string" },
+        { "name": "direction", "type": "u8" },
+        { "name": "pnl", "type": "i64" },
+        { "name": "new_reputation", "type": "u32" }
+      ]
+    }
+  ],
+  "errors": [
+    { "code": 6000, "name": "DomainTooLong", "msg": "Domain name exceeds 32 characters" },
+    { "code": 6001, "name": "DescriptionTooLong", "msg": "Description exceeds 128 characters" },
+    { "code": 6002, "name": "StrategyTooLong", "msg": "Strategy description exceeds 64 characters" },
+    { "code": 6003, "name": "NotDomainOwner", "msg": "Signer does not own the SNS domain" },
+    { "code": 6004, "name": "InvalidDomainAccount", "msg": "Invalid domain account data" },
+    { "code": 6005, "name": "InvalidBps", "msg": "Basis points must be 0-10000" },
+    { "code": 6006, "name": "InvalidDirection", "msg": "Direction must be 0 (long) or 1 (short)" },
+    { "code": 6007, "name": "Overflow", "msg": "Arithmetic overflow" }
+  ]
+}
