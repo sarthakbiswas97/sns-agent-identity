@@ -45,6 +45,16 @@ export default function Header() {
             >
               Register
             </Link>
+            <Link
+              href="/presentation"
+              className={`px-3 py-1.5 rounded-md transition-colors ${
+                pathname === "/presentation"
+                  ? "text-[var(--foreground)] bg-[var(--card-bg)]"
+                  : "text-[var(--muted)] hover:text-[var(--foreground)]"
+              }`}
+            >
+              Pitch
+            </Link>
           </nav>
         </div>
         <div className="flex items-center gap-3">
