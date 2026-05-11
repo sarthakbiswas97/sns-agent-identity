@@ -32,3 +32,6 @@ frontend/out/
 # Test
 .anchor/
 test-ledger/
+
+# Docs
+docs/
