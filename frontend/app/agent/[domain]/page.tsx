@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import Header from "../../header";
 import {
   fetchAgentProfile,
   fetchTradeRecords,
@@ -130,20 +131,7 @@ export default function AgentProfilePage() {
 
   return (
     <main className="flex-1">
-      {/* Header */}
-      <header className="border-b border-[var(--card-border)] px-6 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-xl font-bold tracking-tight hover:opacity-80"
-          >
-            <span className="text-[var(--accent)]">SNS</span> Agent Identity
-          </Link>
-          <span className="text-xs text-[var(--muted)] font-mono">
-            devnet
-          </span>
-        </div>
-      </header>
+      <Header />
 
       <div className="max-w-5xl mx-auto px-6 py-8">
         {/* Agent Identity */}

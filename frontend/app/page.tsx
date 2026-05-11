@@ -1,18 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
-const DEMO_AGENTS = [
-  {
-    domain: "vapm-alpha",
-    description: "Autonomous SOL/USDC trading agent with XGBoost ML model",
-    reputation: 6800,
-    trades: 10,
-    winRate: 70,
-  },
-];
+import Header from "./header";
+import { fetchAllAgents, type AgentProfile } from "../lib/program";
 
 function ReputationBadge({ score }: { score: number }) {
   const pct = score / 100;
@@ -34,7 +26,15 @@ function ReputationBadge({ score }: { score: number }) {
 
 export default function Home() {
   const [search, setSearch] = useState("");
+  const [agents, setAgents] = useState<AgentProfile[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    fetchAllAgents()
+      .then((a) => setAgents(a.sort((x, y) => y.reputationScore - x.reputationScore)))
+      .finally(() => setLoading(false));
+  }, []);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -46,16 +46,7 @@ export default function Home() {
 
   return (
     <main className="flex-1">
-      <header className="border-b border-[var(--card-border)] px-6 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <h1 className="text-xl font-bold tracking-tight">
-            <span className="text-[var(--accent)]">SNS</span> Agent Identity
-          </h1>
-          <span className="text-xs text-[var(--muted)] font-mono">
-            devnet
-          </span>
-        </div>
-      </header>
+      <Header />
 
       <section className="max-w-5xl mx-auto px-6 py-16 text-center">
         <h2 className="text-4xl font-bold tracking-tight mb-4">
@@ -90,31 +81,56 @@ export default function Home() {
       <section className="max-w-5xl mx-auto px-6 pb-16">
         <h3 className="text-sm font-semibold text-[var(--muted)] uppercase tracking-wide mb-4">
           Registered Agents
+          {!loading && (
+            <span className="ml-2 text-[var(--accent)]">({agents.length})</span>
+          )}
         </h3>
-        <div className="space-y-3">
-          {DEMO_AGENTS.map((agent) => (
-            <Link
-              key={agent.domain}
-              href={`/agent/${agent.domain}`}
-              className="block p-5 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--accent-dim)] transition-colors"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-mono font-bold text-lg">
-                  {agent.domain}
-                  <span className="text-[var(--accent)]">.sol</span>
-                </span>
-                <ReputationBadge score={agent.reputation} />
-              </div>
-              <p className="text-sm text-[var(--muted)] mb-3">
-                {agent.description}
-              </p>
-              <div className="flex gap-6 text-xs font-mono text-[var(--muted)]">
-                <span>Trades: {agent.trades}</span>
-                <span>Win Rate: {agent.winRate}%</span>
-              </div>
+
+        {loading ? (
+          <div className="text-[var(--muted)] font-mono text-sm animate-pulse py-8 text-center">
+            Fetching agents from Solana...
+          </div>
+        ) : agents.length === 0 ? (
+          <div className="text-[var(--muted)] text-sm py-8 text-center">
+            No agents registered yet.{" "}
+            <Link href="/register" className="text-[var(--accent)] hover:underline">
+              Register the first one.
             </Link>
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {agents.map((agent) => {
+              const totalTrades = agent.stats.totalTrades;
+              const winRate =
+                totalTrades > 0
+                  ? ((agent.stats.wins / totalTrades) * 100).toFixed(0)
+                  : "0";
+              return (
+                <Link
+                  key={agent.domainName}
+                  href={`/agent/${agent.domainName}`}
+                  className="block p-5 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-[var(--accent-dim)] transition-colors"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-mono font-bold text-lg">
+                      {agent.domainName}
+                      <span className="text-[var(--accent)]">.sol</span>
+                    </span>
+                    <ReputationBadge score={agent.reputationScore} />
+                  </div>
+                  <p className="text-sm text-[var(--muted)] mb-3">
+                    {agent.description}
+                  </p>
+                  <div className="flex gap-6 text-xs font-mono text-[var(--muted)]">
+                    <span>Trades: {totalTrades}</span>
+                    <span>Win Rate: {winRate}%</span>
+                    <span>Strategy: {agent.riskProfile.strategy || "N/A"}</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       <section className="max-w-5xl mx-auto px-6 pb-16">
