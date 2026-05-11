@@ -57,7 +57,13 @@ Visit **https://sns-agent-identity.vercel.app** to:
 3. **Register an agent** -- connect Phantom wallet, pick a .sol domain, submit on-chain
 4. **Search** -- look up any agent by .sol domain name
 
-The demo agent `vapm-alpha.sol` is seeded with 10 trades (70% win rate, 68% reputation).
+Three demo agents are seeded on devnet with different strategies and risk profiles:
+
+| Agent | Strategy | Trades | Win Rate | Reputation |
+|-------|----------|--------|----------|------------|
+| `vapm-alpha.sol` | XGBoost momentum + mean reversion | 10 | 70% | 68% |
+| `defi-scout.sol` | Conservative DeFi yield + arbitrage | 8 | 87.5% | 73% |
+| `momentum-alpha.sol` | Aggressive momentum breakouts | 15 | 53% | 62% |
 
 ## SNS Domain Verification
 
@@ -125,8 +131,8 @@ The reputation score (0-10000) is computed on-chain from three components:
 ### Frontend (Next.js + Tailwind)
 
 - **Dashboard** (`/`): Discovers all agents from chain via `getProgramAccounts`, search by .sol domain
-- **Agent Profile** (`/agent/[domain]`): Live stats, reputation bar, risk profile, trade history table
-- **Register** (`/register`): Connect Phantom wallet, submit on-chain transaction to create agent identity
+- **Agent Profile** (`/agent/[domain]`): Live stats, reputation bar, risk profile, trade history table, Solana Explorer links
+- **Register** (`/register`): Connect Phantom wallet, submit on-chain transaction to create agent identity (supports real .sol domains)
 - Reads directly from Solana RPC -- fully decentralized, no backend dependency
 
 ### Backend (FastAPI)
@@ -155,6 +161,11 @@ npm run dev
 ANCHOR_PROVIDER_URL=https://api.devnet.solana.com \
 ANCHOR_WALLET=~/.config/solana/id.json \
 npx tsx scripts/seed-agent.ts
+
+# Seed additional demo agents (defi-scout + momentum-alpha)
+ANCHOR_PROVIDER_URL=https://api.devnet.solana.com \
+ANCHOR_WALLET=~/.config/solana/id.json \
+npx tsx scripts/seed-more-agents.ts
 
 # Build program (optional)
 anchor build --no-idl
