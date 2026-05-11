@@ -16,16 +16,16 @@ const PROGRAM_ID = new PublicKey(
 );
 
 const DEMO_TRADES = [
-  { direction: 0, entry: 148_500000, exit: 152_300000, size: 500_000000, confidence: 7800 },
-  { direction: 1, entry: 152_300000, exit: 149_100000, size: 300_000000, confidence: 6500 },
-  { direction: 0, entry: 149_100000, exit: 155_800000, size: 700_000000, confidence: 8200 },
-  { direction: 0, entry: 155_800000, exit: 153_200000, size: 400_000000, confidence: 5900 },
-  { direction: 1, entry: 153_200000, exit: 148_700000, size: 600_000000, confidence: 7100 },
-  { direction: 0, entry: 148_700000, exit: 156_400000, size: 800_000000, confidence: 8500 },
-  { direction: 1, entry: 156_400000, exit: 158_100000, size: 350_000000, confidence: 6200 },
-  { direction: 0, entry: 158_100000, exit: 162_500000, size: 500_000000, confidence: 7600 },
-  { direction: 0, entry: 162_500000, exit: 159_800000, size: 450_000000, confidence: 6800 },
-  { direction: 1, entry: 159_800000, exit: 154_300000, size: 550_000000, confidence: 7900 },
+  { direction: 0, entry: 89_500000, exit: 92_300000, size: 500_000000, confidence: 7800 },
+  { direction: 1, entry: 92_300000, exit: 90_100000, size: 300_000000, confidence: 6500 },
+  { direction: 0, entry: 90_100000, exit: 95_800000, size: 700_000000, confidence: 8200 },
+  { direction: 0, entry: 95_800000, exit: 93_200000, size: 400_000000, confidence: 5900 },
+  { direction: 1, entry: 93_200000, exit: 88_700000, size: 600_000000, confidence: 7100 },
+  { direction: 0, entry: 88_700000, exit: 96_400000, size: 800_000000, confidence: 8500 },
+  { direction: 1, entry: 96_400000, exit: 94_100000, size: 350_000000, confidence: 6200 },
+  { direction: 0, entry: 94_100000, exit: 97_500000, size: 500_000000, confidence: 7600 },
+  { direction: 0, entry: 97_500000, exit: 95_800000, size: 450_000000, confidence: 6800 },
+  { direction: 1, entry: 95_800000, exit: 91_300000, size: 550_000000, confidence: 7900 },
 ];
 
 async function main() {
