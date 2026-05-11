@@ -2,6 +2,9 @@
 
 **On-chain identity for AI trading agents using .sol domains on Solana.**
 
+**Live Demo:** https://sns-agent-identity.vercel.app
+**Program ID:** `9P7BTdsx5JHE37rLNGNGSPU99SpsVsKwGB5B6Zn8KViq` (Devnet)
+
 ## The Problem
 
 AI trading agents are anonymous. When an agent manages funds or executes trades, there's no way to verify:
@@ -35,7 +38,7 @@ Every AI agent gets a **.sol domain** (e.g., `vapm-alpha.sol`) that serves as it
                          ├── Risk profile (limits, strategy description)
                          └── Reputation score (computed on-chain)
                          |
-3. Agent trades:         Each trade → TradeRecord PDA
+3. Agent trades:         Each trade -> TradeRecord PDA
                          ├── Direction (long/short)
                          ├── Entry/exit prices
                          ├── PnL (computed on-chain)
@@ -44,6 +47,17 @@ Every AI agent gets a **.sol domain** (e.g., `vapm-alpha.sol`) that serves as it
 4. Reputation updates:   Auto-recomputed after each trade
                          Score = f(win_rate, consistency, profitability)
 ```
+
+## Live Demo
+
+Visit **https://sns-agent-identity.vercel.app** to:
+
+1. **Browse agents** -- dashboard discovers all registered agents from Solana devnet
+2. **View profiles** -- click any agent to see stats, reputation, risk profile, and trade history
+3. **Register an agent** -- connect Phantom wallet, pick a .sol domain, submit on-chain
+4. **Search** -- look up any agent by .sol domain name
+
+The demo agent `vapm-alpha.sol` is seeded with 10 trades (70% win rate, 68% reputation).
 
 ## SNS Domain Verification
 
@@ -63,8 +77,6 @@ require!(domain_owner == signer.key(), NotDomainOwner);
 ## Architecture
 
 ### On-Chain Program (Anchor/Rust)
-
-**Program ID:** `9P7BTdsx5JHE37rLNGNGSPU99SpsVsKwGB5B6Zn8KViq` (Devnet)
 
 | Instruction | Purpose |
 |-------------|---------|
@@ -112,25 +124,16 @@ The reputation score (0-10000) is computed on-chain from three components:
 
 ### Frontend (Next.js + Tailwind)
 
-- **Dashboard** (`/`): Search agents by .sol domain, browse registered agents
-- **Agent Profile** (`/agent/[domain]`): Full identity view with stats, risk profile, trade history, reputation bar
-- Reads directly from Solana RPC -- no backend dependency for core functionality
+- **Dashboard** (`/`): Discovers all agents from chain via `getProgramAccounts`, search by .sol domain
+- **Agent Profile** (`/agent/[domain]`): Live stats, reputation bar, risk profile, trade history table
+- **Register** (`/register`): Connect Phantom wallet, submit on-chain transaction to create agent identity
+- Reads directly from Solana RPC -- fully decentralized, no backend dependency
 
 ### Backend (FastAPI)
 
-- On-chain data reader (Borsh deserialization)
+- On-chain data reader with Borsh deserialization
 - REST API for agent profiles and trade records
-- SNS domain resolution support
-
-## Demo Data
-
-The `vapm-alpha.sol` agent is seeded on devnet with:
-- 10 simulated trades (based on realistic SOL/USDC market data)
-- 7 wins, 3 losses (70% win rate)
-- Positive PnL
-- Risk profile: 5% max position, 3% max daily loss, 10% max drawdown
-- Strategy: XGBoost momentum + mean reversion
-- Reputation: 68%
+- Available for indexing/caching but not required -- frontend is self-sufficient
 
 ## Quick Start
 
@@ -138,7 +141,7 @@ The `vapm-alpha.sol` agent is seeded on devnet with:
 # Prerequisites: Node.js 20+, Rust, Solana CLI, Anchor CLI
 
 # Clone and install
-git clone <repo-url>
+git clone https://github.com/sarthakbiswas97/sns-agent-identity.git
 cd sns-agent-identity
 npm install
 
@@ -169,8 +172,9 @@ solana program deploy target/deploy/sns_agent_identity.so \
 | Blockchain | Solana (Devnet) |
 | Identity | SNS (.sol domains) by Bonfida |
 | Frontend | Next.js 16 + Tailwind CSS |
+| Wallet | Solana Wallet Adapter (Phantom) |
 | Backend | FastAPI (Python) |
-| On-chain Data | Borsh serialization + RPC reads |
+| Hosting | Vercel |
 
 ## How This Addresses Identity on Solana
 
